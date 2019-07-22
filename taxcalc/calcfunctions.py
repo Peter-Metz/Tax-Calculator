@@ -90,7 +90,7 @@ def EI_PayrollTax(SS_Earnings_c, e00200p, e00200s, pencon_p, pencon_s,
                   FICA_ss_trt, FICA_mc_trt, ALD_SelfEmploymentTax_hc,
                   SS_Earnings_thd, e00900p, e00900s, e02100p, e02100s, k1bx14p,
                   k1bx14s, payrolltax, ptax_was, setax, c03260, ptax_oasdi,
-                  sey, earned, earned_p, earned_s):
+                  sey, earned, earned_p, earned_s, FICA_ss_em, FICA_ss_em_employer):
     """
     Compute part of total OASDI+HI payroll taxes and earned income variables.
     """
@@ -99,19 +99,46 @@ def EI_PayrollTax(SS_Earnings_c, e00200p, e00200s, pencon_p, pencon_s,
     sey_s = e00900s + e02100s + k1bx14s
     sey = sey_p + sey_s  # total self-employment income for filing unit
 
+    # compute sey adjusted for exemption
+    sey_p_em = max(e00900p + e02100p + k1bx14p - FICA_ss_em, 0)
+    sey_s_em = max(e00900s + e02100s + k1bx14s - FICA_ss_em, 0)
+    sey_em = sey_p_em + sey_s_em  # total self-employment income for filing unit
+
     # compute gross wage and salary income ('was' denotes 'wage and salary')
     gross_was_p = e00200p + pencon_p
     gross_was_s = e00200s + pencon_s
+
+    # compute gross wage and salary adjusted for exemption
+    gross_was_p_em = max(e00200p + pencon_p - FICA_ss_em, 0)
+    gross_was_s_em = max(e00200s + pencon_s - FICA_ss_em, 0)
 
     # compute taxable gross earnings for OASDI FICA
     txearn_was_p = min(SS_Earnings_c, gross_was_p)
     txearn_was_s = min(SS_Earnings_c, gross_was_s)
 
+    # taxable gross earnings for OASDI FICA adjusted for exemption
+    txearn_was_p_em = min(SS_Earnings_c, gross_was_p_em)
+    txearn_was_s_em = min(SS_Earnings_c, gross_was_s_em)
+
     # compute OASDI and HI payroll taxes on wage-and-salary income, FICA
-    ptax_ss_was_p = FICA_ss_trt * txearn_was_p
-    ptax_ss_was_s = FICA_ss_trt * txearn_was_s
     ptax_mc_was_p = FICA_mc_trt * gross_was_p
     ptax_mc_was_s = FICA_mc_trt * gross_was_s
+
+    # if exemption also applies to employer, apply entire FICA rate to
+    # post-exemption taxable earnings
+    if FICA_ss_em_employer:
+        ptax_ss_was_p = FICA_ss_trt * txearn_was_p_em
+        ptax_ss_was_s = FICA_ss_trt * txearn_was_s_em
+
+    # if exemption only applies to employee, apply half of FICA rate to
+    # post-exemption taxable earnings, and half of FICA rate to pre-exemption
+    # taxable earnings
+    else:
+        ptax_ss_was_p = (FICA_ss_trt * 0.5 * txearn_was_p) + \
+            (FICA_ss_trt * 0.5 * txearn_was_p_em)
+        ptax_ss_was_s = (FICA_ss_trt * 0.5 * txearn_was_s) + \
+            (FICA_ss_trt * 0.5 * txearn_was_s_em)
+
     ptax_was = ptax_ss_was_p + ptax_ss_was_s + ptax_mc_was_p + ptax_mc_was_s
 
     # compute taxable self-employment income for OASDI SECA
@@ -119,9 +146,29 @@ def EI_PayrollTax(SS_Earnings_c, e00200p, e00200s, pencon_p, pencon_s,
     txearn_sey_p = min(max(0., sey_p * sey_frac), SS_Earnings_c - txearn_was_p)
     txearn_sey_s = min(max(0., sey_s * sey_frac), SS_Earnings_c - txearn_was_s)
 
+    # compute taxable self-employment income for OASDI SECA, adjusted for
+    # exemption
+    txearn_sey_p_em = min(max(0., sey_p_em * sey_frac),
+                          SS_Earnings_c - txearn_was_p_em)
+    txearn_sey_s_em = min(max(0., sey_s_em * sey_frac),
+                          SS_Earnings_c - txearn_was_s_em)
+
+    # if exemption also applies to employer, apply entire FICA rate to
+    # post-exemption taxable earnings
+    if FICA_ss_em_employer:
+        setax_ss_p = FICA_ss_trt * txearn_sey_p_em
+        setax_ss_s = FICA_ss_trt * txearn_sey_s_em
+
+    # if exemption only applies to employee, apply half of FICA rate to
+    # post-exemption taxable earnings, and half of FICA rate to pre-exemption
+    # taxable earnings
+    else:
+        setax_ss_p = (FICA_ss_trt * 0.5 * txearn_sey_p) + \
+            (FICA_ss_trt * 0.5 * txearn_sey_p_em)
+        setax_ss_s = (FICA_ss_trt * 0.5 * txearn_sey_s) + \
+            (FICA_ss_trt * 0.5 * txearn_sey_s_em)
+
     # compute self-employment tax on taxable self-employment income, SECA
-    setax_ss_p = FICA_ss_trt * txearn_sey_p
-    setax_ss_s = FICA_ss_trt * txearn_sey_s
     setax_mc_p = FICA_mc_trt * max(0., sey_p * sey_frac)
     setax_mc_s = FICA_mc_trt * max(0., sey_s * sey_frac)
     setax_p = setax_ss_p + setax_mc_p
