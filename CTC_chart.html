@@ -1,0 +1,85 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.4.0.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="4d30e166-044e-4bab-b8fb-3ff535a3b229" data-root-id="1255"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="1378">
+          {"0a43112a-e84f-4f2b-85bd-f568ce422713":{"roots":{"references":[{"attributes":{},"id":"1259","type":"CategoricalTickFormatter"},{"attributes":{"callback":null,"factors":["$0-10K","$10-20K","$20-30K","$30-40K","$40-50K","$50-75K","$75-100K","$100-200K","$200-500K","$500-1000K","&gt;$1000K"]},"id":"1194","type":"FactorRange"},{"attributes":{"grid_line_color":null,"ticker":{"id":"1234","type":"CategoricalTicker"}},"id":"1236","type":"Grid"},{"attributes":{},"id":"1265","type":"UnionRenderers"},{"attributes":{"dimension":1,"ticker":{"id":"1207","type":"BasicTicker"}},"id":"1210","type":"Grid"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"#1f77b4"},"line_alpha":{"value":0.1},"line_color":{"value":"#1f77b4"},"top":{"field":"pc_aftertaxinc"},"width":{"value":0.5},"x":{"field":"bins"}},"id":"1245","type":"VBar"},{"attributes":{},"id":"1207","type":"BasicTicker"},{"attributes":{"data_source":{"id":"1002","type":"ColumnDataSource"},"glyph":{"id":"1244","type":"VBar"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1245","type":"VBar"},"selection_glyph":null,"view":{"id":"1247","type":"CDSView"}},"id":"1246","type":"GlyphRenderer"},{"attributes":{"fill_alpha":{"value":0.7},"fill_color":{"value":"#ff7f0e"},"line_alpha":{"value":0.7},"line_color":{"value":"#ff7f0e"},"top":{"field":"mean"},"width":{"value":0.5},"x":{"field":"bins"}},"id":"1213","type":"VBar"},{"attributes":{"grid_line_color":null,"ticker":{"id":"1203","type":"CategoricalTicker"}},"id":"1205","type":"Grid"},{"attributes":{"fill_alpha":{"value":0.7},"fill_color":{"value":"#ff7f0e"},"line_alpha":{"value":0.7},"line_color":{"value":"#ff7f0e"},"top":{"field":"pc_aftertaxinc"},"width":{"value":0.5},"x":{"field":"bins"}},"id":"1244","type":"VBar"},{"attributes":{"axis_label":"Mean Tax Change","formatter":{"id":"1218","type":"NumeralTickFormatter"},"minor_tick_line_color":{"value":null},"ticker":{"id":"1207","type":"BasicTicker"}},"id":"1206","type":"LinearAxis"},{"attributes":{},"id":"1238","type":"BasicTicker"},{"attributes":{"active_drag":"auto","active_inspect":"auto","active_multi":null,"active_scroll":"auto","active_tap":"auto","tools":[{"id":"1251","type":"HoverTool"}]},"id":"1242","type":"Toolbar"},{"attributes":{},"id":"1229","type":"CategoricalScale"},{"attributes":{},"id":"1203","type":"CategoricalTicker"},{"attributes":{"child":{"id":"1222","subtype":"Figure","type":"Plot"},"title":"After-Tax Percent Change"},"id":"1254","type":"Panel"},{"attributes":{"axis_label":"Income Bin","formatter":{"id":"1259","type":"CategoricalTickFormatter"},"ticker":{"id":"1203","type":"CategoricalTicker"}},"id":"1202","type":"CategoricalAxis"},{"attributes":{"active_drag":"auto","active_inspect":"auto","active_multi":null,"active_scroll":"auto","active_tap":"auto","tools":[{"id":"1220","type":"HoverTool"}]},"id":"1211","type":"Toolbar"},{"attributes":{"below":[{"id":"1202","type":"CategoricalAxis"}],"center":[{"id":"1205","type":"Grid"},{"id":"1210","type":"Grid"}],"left":[{"id":"1206","type":"LinearAxis"}],"plot_height":300,"plot_width":750,"renderers":[{"id":"1215","type":"GlyphRenderer"},{"id":"1217","type":"Span"}],"title":{"id":"1192","type":"Title"},"toolbar":{"id":"1211","type":"Toolbar"},"x_range":{"id":"1194","type":"FactorRange"},"x_scale":{"id":"1198","type":"CategoricalScale"},"y_range":{"id":"1196","type":"DataRange1d"},"y_scale":{"id":"1200","type":"LinearScale"}},"id":"1191","subtype":"Figure","type":"Plot"},{"attributes":{"fill_alpha":{"value":0.1},"fill_color":{"value":"#1f77b4"},"line_alpha":{"value":0.1},"line_color":{"value":"#1f77b4"},"top":{"field":"mean"},"width":{"value":0.5},"x":{"field":"bins"}},"id":"1214","type":"VBar"},{"attributes":{"axis_label":"After-Tax Percent Change","formatter":{"id":"1249","type":"NumeralTickFormatter"},"minor_tick_line_color":{"value":null},"ticker":{"id":"1238","type":"BasicTicker"}},"id":"1237","type":"LinearAxis"},{"attributes":{"axis_label":"Income Bin","formatter":{"id":"1262","type":"CategoricalTickFormatter"},"ticker":{"id":"1234","type":"CategoricalTicker"}},"id":"1233","type":"CategoricalAxis"},{"attributes":{"source":{"id":"1002","type":"ColumnDataSource"}},"id":"1216","type":"CDSView"},{"attributes":{"dimension":1,"ticker":{"id":"1238","type":"BasicTicker"}},"id":"1241","type":"Grid"},{"attributes":{"data_source":{"id":"1002","type":"ColumnDataSource"},"glyph":{"id":"1213","type":"VBar"},"hover_glyph":null,"muted_glyph":null,"nonselection_glyph":{"id":"1214","type":"VBar"},"selection_glyph":null,"view":{"id":"1216","type":"CDSView"}},"id":"1215","type":"GlyphRenderer"},{"attributes":{"source":{"id":"1002","type":"ColumnDataSource"}},"id":"1247","type":"CDSView"},{"attributes":{"callback":null,"factors":["$0-10K","$10-20K","$20-30K","$30-40K","$40-50K","$50-75K","$75-100K","$100-200K","$200-500K","$500-1000K","&gt;$1000K"]},"id":"1225","type":"FactorRange"},{"attributes":{},"id":"1264","type":"Selection"},{"attributes":{"below":[{"id":"1233","type":"CategoricalAxis"}],"center":[{"id":"1236","type":"Grid"},{"id":"1241","type":"Grid"}],"left":[{"id":"1237","type":"LinearAxis"}],"plot_height":300,"plot_width":750,"renderers":[{"id":"1246","type":"GlyphRenderer"},{"id":"1248","type":"Span"}],"title":{"id":"1223","type":"Title"},"toolbar":{"id":"1242","type":"Toolbar"},"x_range":{"id":"1225","type":"FactorRange"},"x_scale":{"id":"1229","type":"CategoricalScale"},"y_range":{"id":"1227","type":"DataRange1d"},"y_scale":{"id":"1231","type":"LinearScale"}},"id":"1222","subtype":"Figure","type":"Plot"},{"attributes":{"callback":null,"tabs":[{"id":"1253","type":"Panel"},{"id":"1254","type":"Panel"}]},"id":"1255","type":"Tabs"},{"attributes":{"text":"Effects of Replacing EITC With Expanded CTC"},"id":"1192","type":"Title"},{"attributes":{"callback":null,"tooltips":"@mean{$0,000}"},"id":"1220","type":"HoverTool"},{"attributes":{},"id":"1231","type":"LinearScale"},{"attributes":{},"id":"1262","type":"CategoricalTickFormatter"},{"attributes":{"line_color":{"value":"gray"},"location":0},"id":"1217","type":"Span"},{"attributes":{"callback":null},"id":"1196","type":"DataRange1d"},{"attributes":{"format":"$0,000"},"id":"1218","type":"NumeralTickFormatter"},{"attributes":{"callback":null,"tooltips":"@pc_aftertaxinc{%0.0}"},"id":"1251","type":"HoverTool"},{"attributes":{"format":"%0.0"},"id":"1249","type":"NumeralTickFormatter"},{"attributes":{"callback":null},"id":"1227","type":"DataRange1d"},{"attributes":{"callback":null,"data":{"bins":["&lt;$0K","=$0K","$0-10K","$10-20K","$20-30K","$30-40K","$40-50K","$50-75K","$75-100K","$100-200K","$200-500K","$500-1000K","&gt;$1000K","ALL"],"count":{"__ndarray__":"RiV1ApoIiz+oNc07TtGhP3KKjuTyH8o/nzws1JrmzT8Rx7q4jQbIP+0vuycPC8U/xf6ye/KwwD9aZDvfT43PP6ROQBNhw8M/0ETY8PRK0T86I0p7gy+8Py9uowG8BZI/j1N0JJf/gD9Jv30dOGf8Pw==","dtype":"float64","shape":[14]},"index":["&lt;$0K","=$0K","$0-10K","$10-20K","$20-30K","$30-40K","$40-50K","$50-75K","$75-100K","$100-200K","$200-500K","$500-1000K","&gt;$1000K","ALL"],"mean":{"__ndarray__":"ZmZmZmamScBmZmZmZuYyQDMzMzMzQ2pAmpmZmZmdkEAAAAAAAHCOQGZmZmZmZnZAmpmZmZkZYcAzMzMzMwt8wJqZmZmZfYHAzczMzMy0iMDNzMzMzFiMwGZmZmZmLnHAZmZmZmbmNcCamZmZmZnJvw==","dtype":"float64","shape":[14]},"pc_aftertaxinc":{"__ndarray__":"AAAAAAAAAIDjpZvEILDCvwrXo3A9Cqe/7FG4HoXrsb/KoUW28/2kv7tJDAIrh4a/+n5qvHSTaD/8qfHSTWKAP/yp8dJNYoA/eOkmMQisfD/8qfHSTWJwP/yp8dJNYlA/AAAAAAAAAAAAAAAAAAAAAA==","dtype":"float64","shape":[14]},"perc_cut":{"__ndarray__":"exSuR+F6pD/6fmq8dJNoP/yp8dJNYlA/eOkmMQisfD/6fmq8dJOYP4PAyqFFtrM/BoGVQ4tsxz82XrpJDALLPxgEVg4tss0/exSuR+F61D+28/3UeOnWP8DKoUW2870/PN9PjZdugj/jpZvEILDCPw==","dtype":"float64","shape":[14]},"perc_inc":{"__ndarray__":"CKwcWmQ7rz/6fmq8dJOIPxxaZDvfT80/VOOlm8Qg2D+amZmZmZnRP+58PzVeusk/Gy/dJAaBtT+7SQwCK4eGP/yp8dJNYlA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMN4lBYOXAPw==","dtype":"float64","shape":[14]}},"selected":{"id":"1264","type":"Selection"},"selection_policy":{"id":"1265","type":"UnionRenderers"}},"id":"1002","type":"ColumnDataSource"},{"attributes":{"line_color":{"value":"gray"},"location":0},"id":"1248","type":"Span"},{"attributes":{},"id":"1234","type":"CategoricalTicker"},{"attributes":{},"id":"1198","type":"CategoricalScale"},{"attributes":{"child":{"id":"1191","subtype":"Figure","type":"Plot"},"title":"Mean Tax Change"},"id":"1253","type":"Panel"},{"attributes":{"text":"Effects of Replacing EITC With Expanded CTC"},"id":"1223","type":"Title"},{"attributes":{},"id":"1200","type":"LinearScale"}],"root_ids":["1255"]},"title":"Bokeh Application","version":"1.4.0"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  var docs_json = document.getElementById('1378').textContent;
+                  var render_items = [{"docid":"0a43112a-e84f-4f2b-85bd-f568ce422713","roots":{"1255":"4d30e166-044e-4bab-b8fb-3ff535a3b229"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    var attempts = 0;
+                    var timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        clearInterval(timer);
+                        embed_document(root);
+                      } else {
+                        attempts++;
+                        if (attempts > 100) {
+                          clearInterval(timer);
+                          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        }
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>
