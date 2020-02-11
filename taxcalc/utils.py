@@ -130,6 +130,13 @@ STANDARD_ROW_NAMES = ['<$0K', '=$0K', '$0-10K', '$10-20K', '$20-30K',
 STANDARD_INCOME_BINS = [-9e99, -1e-9, 1e-9, 10e3, 20e3, 30e3, 40e3, 50e3,
                         75e3, 100e3, 200e3, 500e3, 1e6, 9e99]
 
+CUSTOM_ROW_NAMES = ['<$10K', '$10-20K', '$20-30K',
+                      '$30-40K', '$40-50K', '$50-75K', '$75-100K',
+                      '$100-200K', '$200-400K', '>$400K', 'ALL']
+
+CUSTOM_INCOME_BINS = [-9e99, 10e3, 20e3, 30e3, 40e3, 50e3,
+                        75e3, 100e3, 200e3, 500e3, 9e99]
+
 SOI_AGI_BINS = [-9e99, 1.0, 5e3, 10e3, 15e3, 20e3, 25e3, 30e3, 40e3, 50e3,
                 75e3, 100e3, 200e3, 500e3, 1e6, 1.5e6, 2e6, 5e6, 10e6, 9e99]
 
@@ -492,6 +499,7 @@ def create_difference_table(vdf1, vdf2, groupby, tax_to_diff,
     # main logic of create_difference_table
     assert groupby in ('weighted_deciles',
                        'standard_income_bins',
+                       'custom_income_bins',
                        'soi_agi_bins')
     if pop_quantiles:
         assert groupby == 'weighted_deciles'
@@ -527,6 +535,10 @@ def create_difference_table(vdf1, vdf2, groupby, tax_to_diff,
         dframe = add_income_table_row_variable(df2,
                                                baseline_expanded_income,
                                                STANDARD_INCOME_BINS)
+    elif groupby == 'custom_income_bins':
+        dframe = add_income_table_row_variable(df2,
+                                               'c00100',
+                                               CUSTOM_INCOME_BINS)
     elif groupby == 'soi_agi_bins':
         dframe = add_income_table_row_variable(df2,
                                                baseline_expanded_income,
@@ -590,6 +602,8 @@ def create_difference_table(vdf1, vdf2, groupby, tax_to_diff,
         rownames = DECILE_ROW_NAMES
     elif groupby == 'standard_income_bins':
         rownames = STANDARD_ROW_NAMES
+    elif groupby == 'custom_income_bins':
+        rownames = CUSTOM_ROW_NAMES
     else:
         rownames = None
     if rownames:
