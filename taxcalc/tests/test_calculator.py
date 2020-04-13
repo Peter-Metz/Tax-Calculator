@@ -11,6 +11,7 @@ import os
 from io import StringIO
 import copy
 import pytest
+import math
 import numpy as np
 import pandas as pd
 from taxcalc import Policy, Records, Calculator, Consumption
@@ -237,12 +238,15 @@ def test_make_calculator_increment_years_first(cps_subsample):
     irate2015 = irates[2015 - syr]
     irate2016 = irates[2016 - syr]
     std6 = std5 * (1.0 + irate2015)
+    # STD rounds down to nearest multiple of 50
+    std6_round = math.floor(std6 / 50) * 50
     std7 = std6 * (1.0 + irate2016)
+    std7_round = math.floor(std7 / 50) * 50
     exp_STD_Aged = np.array([[1500, 1200, 1200, 1500, 1500],
                              [1550, 1200, 1200, 1550, 1550],
                              [std5, std5, std5, std5, std5],
-                             [std6, std6, std6, std6, std6],
-                             [std7, std7, std7, std7, std7]])
+                             [std6_round, std6_round, std6_round, std6_round, std6_round],
+                             [std7_round, std7_round, std7_round, std7_round, std7_round]])
     act_STD_Aged = calc.policy_param('_STD_Aged')
     assert np.allclose(act_STD_Aged[:5], exp_STD_Aged)
     exp_II_em = np.array([3900, 3950, 5000, 6000, 6000])

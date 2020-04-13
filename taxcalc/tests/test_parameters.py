@@ -331,10 +331,10 @@ def test_expand_xd_errors():
     """
     dct = dict()
     with pytest.raises(ValueError):
-        Parameters._expand_1d(dct, inflate=False, inflation_rates=[],
+        Parameters._expand_1d(dct, round_dir=False, round_to=False, inflate=False, inflation_rates=[],
                               num_years=10)
     with pytest.raises(ValueError):
-        Parameters._expand_2d(dct, inflate=False, inflation_rates=[],
+        Parameters._expand_2d(dct, round_dir=False, round_to=False, inflate=False, inflation_rates=[],
                               num_years=10)
 
 
@@ -345,11 +345,11 @@ def test_expand_1d_scalar():
     yrs = 12
     val = 10.0
     exp = np.array([val * math.pow(1.02, i) for i in range(0, yrs)])
-    res = Parameters._expand_1d(np.array([val]),
+    res = Parameters._expand_1d(np.array([val]), round_dir=False, round_to=False,  
                                 inflate=True, inflation_rates=[0.02] * yrs,
                                 num_years=yrs)
     assert np.allclose(exp, res, atol=0.01, rtol=0.0)
-    res = Parameters._expand_1d(np.array([val]),
+    res = Parameters._expand_1d(np.array([val]), round_dir=False, round_to=False,  
                                 inflate=True, inflation_rates=[0.02] * yrs,
                                 num_years=1)
     assert np.allclose(np.array([val]), res, atol=0.01, rtol=0.0)
@@ -366,7 +366,7 @@ def test_expand_2d_short_array():
     exp = np.zeros((5, 3))
     exp[:1] = exp1
     exp[1:] = exp2
-    res = Parameters._expand_2d(ary, inflate=True,
+    res = Parameters._expand_2d(ary, round_dir=False, round_to=False,  inflate=True,
                                 inflation_rates=[0.02] * 5, num_years=5)
     assert np.allclose(exp, res, atol=0.01, rtol=0.0)
 
@@ -388,7 +388,7 @@ def test_expand_2d_variable_rates():
     exp = np.zeros((5, 3))
     exp[:1] = exp1
     exp[1:] = exp2
-    res = Parameters._expand_2d(ary, inflate=True,
+    res = Parameters._expand_2d(ary, round_dir=False, round_to=False,  inflate=True,
                                 inflation_rates=irates, num_years=5)
     assert np.allclose(exp, res, atol=0.01, rtol=0.0)
 
@@ -401,7 +401,7 @@ def test_expand_2d_already_filled():
     _II_brk2 = [[36000., 72250., 36500., 48600., 72500., 36250.],
                 [38000., 74000., 36900., 49400., 73800., 36900.],
                 [40000., 74900., 37450., 50200., 74900., 37450.]]
-    res = Parameters._expand_2d(np.array(_II_brk2),
+    res = Parameters._expand_2d(np.array(_II_brk2), round_dir=False, round_to=False,  
                                 inflate=True, inflation_rates=[0.02] * 5,
                                 num_years=3)
     np.allclose(res, np.array(_II_brk2), atol=0.01, rtol=0.0)
@@ -429,7 +429,7 @@ def test_expand_2d_partial_expand():
            [38000.0, 74000.0, 36900.0, 49400.0, 73800.0, 36900.0],
            [40000.0, 74900.0, 37450.0, 50200.0, 74900.0, 37450.0],
            [exp1, exp2, exp3, exp4, exp5, exp6]]
-    res = Parameters._expand_2d(np.array(_II_brk2),
+    res = Parameters._expand_2d(np.array(_II_brk2), round_dir=False, round_to=False,  
                                 inflate=True, inflation_rates=inf_rates,
                                 num_years=4)
     assert np.allclose(res, exp, atol=0.01, rtol=0.0)

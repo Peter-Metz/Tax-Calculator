@@ -31,7 +31,8 @@ def test_2017_law_reform(tests_path):
     ctc_c_warning = 'CTC_c was redefined in release 1.0.0\n'
     assert pol.parameter_warnings == ctc_c_warning
     assert not pol.parameter_errors
-    pol.set_year(2018)
+    # set year to 2019 to ensure vals are not the same due to rounding
+    pol.set_year(2019)
     pre_mdata = pol.metadata()
     # check some policy parameter values against expected values under 2017 law
     pre_expect = {

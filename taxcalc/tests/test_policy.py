@@ -11,6 +11,7 @@ import os
 import json
 import numpy as np
 import pytest
+import math
 # pylint: disable=import-error
 from taxcalc import Policy
 
@@ -183,9 +184,11 @@ def test_constant_inflation_rate_with_reform():
     # implement reform in year before final year
     fyr = Policy.LAST_BUDGET_YEAR
     ryr = fyr - 1
+    # turn on CTC_c-indexed to avoid rounding rules in policy_current_law.json
     reform = {
-        'II_em': {(ryr - 3): 1000,  # to avoid divide-by-zero under TCJA
-                  ryr: 20000}
+        'CTC_c': {(ryr - 3): 1000,  # to avoid divide-by-zero under TCJA
+                  ryr: 20000},
+        'CTC_c-indexed': {2013: True}
     }
     pol.implement_reform(reform)
     # extract price inflation rates
@@ -194,10 +197,10 @@ def test_constant_inflation_rate_with_reform():
     irate_b = pirates[ryr - 2 - syr]
     irate_a = pirates[ryr - syr]
     # check implied inflation rate just before reform
-    grate = float(pol._II_em[ryr - 1 - syr]) / float(pol._II_em[ryr - 2 - syr])
+    grate = float(pol._CTC_c[ryr - 1 - syr]) / float(pol._CTC_c[ryr - 2 - syr])
     assert round(grate - 1.0, 4) == round(irate_b, 4)
     # check implied inflation rate just after reform
-    grate = float(pol._II_em[ryr + 1 - syr]) / float(pol._II_em[ryr - syr])
+    grate = float(pol._CTC_c[ryr + 1 - syr]) / float(pol._CTC_c[ryr - syr])
     assert round(grate - 1.0, 6) == round(irate_a, 6)
 
 
@@ -207,11 +210,13 @@ def test_variable_inflation_rate_with_reform():
     """
     pol = Policy()
     syr = Policy.JSON_START_YEAR
-    assert pol._II_em[2013 - syr] == 3900
+    assert pol._CTC_c[2013 - syr] == 1000
     # implement reform in 2020 which is two years before the last year, 2022
+    # turn on CTC_c-indexed to avoid rounding rules in policy_current_law.json
     reform = {
-        'II_em': {2018: 1000,  # to avoid divide-by-zero under TCJA
-                  2020: 20000}
+        'CTC_c': {2018: 1000,  # to avoid divide-by-zero under TCJA
+                  2020: 20000},
+        'CTC_c-indexed': {2013: True}
     }
     pol.implement_reform(reform)
     pol.set_year(2020)
@@ -222,13 +227,13 @@ def test_variable_inflation_rate_with_reform():
     irate2020 = pirates[2020 - syr]
     irate2021 = pirates[2021 - syr]
     # check implied inflation rate between 2018 and 2019 (before the reform)
-    grate = float(pol._II_em[2019 - syr]) / float(pol._II_em[2018 - syr])
+    grate = float(pol._CTC_c[2019 - syr]) / float(pol._CTC_c[2018 - syr])
     assert round(grate - 1.0, 5) == round(irate2018, 5)
     # check implied inflation rate between 2020 and 2021 (after the reform)
-    grate = float(pol._II_em[2021 - syr]) / float(pol._II_em[2020 - syr])
+    grate = float(pol._CTC_c[2021 - syr]) / float(pol._CTC_c[2020 - syr])
     assert round(grate - 1.0, 5) == round(irate2020, 5)
     # check implied inflation rate between 2021 and 2022 (after the reform)
-    grate = float(pol._II_em[2022 - syr]) / float(pol._II_em[2021 - syr])
+    grate = float(pol._CTC_c[2022 - syr]) / float(pol._CTC_c[2021 - syr])
     assert round(grate - 1.0, 5) == round(irate2021, 5)
 
 
@@ -260,6 +265,8 @@ def test_multi_year_reform():
                                      [529, 3526, 5828, 6557]],
                                     dtype=np.float64),
                            'real',
+                           round_dir='nearest',
+                           round_to=[1,1,1,1],
                            inflate=True,
                            inflation_rates=iratelist,
                            num_years=nyrs),
@@ -269,6 +276,8 @@ def test_multi_year_reform():
                            np.array([1000, 1000, 1050, 1050, 1050, 1050, 1100],
                                     dtype=np.float64),
                            'real',
+                           round_dir='down',
+                           round_to=[50],
                            inflate=True,
                            inflation_rates=iratelist,
                            num_years=nyrs),
@@ -278,6 +287,8 @@ def test_multi_year_reform():
                            np.array([1000] * 5 + [2000] * 8 + [1000],
                                     dtype=np.float64),
                            'real',
+                           round_dir=False,
+                           round_to=False,
                            inflate=False,
                            inflation_rates=iratelist,
                            num_years=nyrs),
@@ -289,6 +300,8 @@ def test_multi_year_reform():
                                      128400, 132900],
                                     dtype=np.float64),
                            'real',
+                           round_dir='nearest',
+                           round_to=[300],
                            inflate=True,
                            inflation_rates=wratelist,
                            num_years=nyrs),
@@ -365,17 +378,18 @@ def check_eitc_c(ppo, reform, ifactor):
                        atol=0.01, rtol=0.0)
     e2016 = reform['EITC_c'][2016]
     assert np.allclose(actual[2016], e2016, atol=0.01, rtol=0.0)
-    e2017 = [ifactor[2016] * actual[2016][j] for j in range(0, alen)]
+    # rounding to 0 decimal points because of EITC_c rounding rule
+    e2017 = [round(ifactor[2016] * actual[2016][j],0) for j in range(0, alen)]
     assert np.allclose(actual[2017], e2017, atol=0.01, rtol=0.0)
-    e2018 = [ifactor[2017] * actual[2017][j] for j in range(0, alen)]
+    e2018 = [round(ifactor[2017] * actual[2017][j],0) for j in range(0, alen)]
     assert np.allclose(actual[2018], e2018, atol=0.01, rtol=0.0)
     e2019 = reform['EITC_c'][2019]
     assert np.allclose(actual[2019], e2019, atol=0.01, rtol=0.0)
-    e2020 = [ifactor[2019] * actual[2019][j] for j in range(0, alen)]
+    e2020 = [round(ifactor[2019] * actual[2019][j],0) for j in range(0, alen)]
     assert np.allclose(actual[2020], e2020, atol=0.01, rtol=0.0)
-    e2021 = [ifactor[2020] * actual[2020][j] for j in range(0, alen)]
+    e2021 = [round(ifactor[2020] * actual[2020][j],0) for j in range(0, alen)]
     assert np.allclose(actual[2021], e2021, atol=0.01, rtol=0.0)
-    e2022 = [ifactor[2021] * actual[2021][j] for j in range(0, alen)]
+    e2022 = [round(ifactor[2021] * actual[2021][j],0) for j in range(0, alen)]
     assert np.allclose(actual[2022], e2022, atol=0.01, rtol=0.0)
 
 
@@ -384,6 +398,9 @@ def check_ii_em(ppo, reform, ifactor):
     Compare actual and expected _II_em parameter values
     generated by the test_multi_year_reform() function above.
     """
+    def round_down_50(val):
+        return math.floor(val / 50) * 50
+
     actual = {}
     arr = getattr(ppo, '_II_em')
     for i in range(0, ppo.num_years):
@@ -393,18 +410,18 @@ def check_ii_em(ppo, reform, ifactor):
     assert actual[2015] == 4000
     e2016 = reform['II_em'][2016]
     assert actual[2016] == e2016
-    e2017 = ifactor[2016] * actual[2016]
-    assert np.allclose([actual[2017]], [e2017], atol=0.01, rtol=0.0)
-    e2018 = ifactor[2017] * actual[2017]
-    assert np.allclose([actual[2018]], [e2018], atol=0.01, rtol=0.0)
+    e2017 = ifactor[2016] * e2016
+    assert np.allclose([actual[2017]], [round_down_50(e2017)], atol=0.01, rtol=0.0)
+    e2018 = ifactor[2017] * e2017
+    assert np.allclose([actual[2018]], [round_down_50(e2018)], atol=0.01, rtol=0.0)
     e2019 = reform['II_em'][2019]
     assert actual[2019] == e2019
-    e2020 = ifactor[2019] * actual[2019]
-    assert np.allclose([actual[2020]], [e2020], atol=0.01, rtol=0.0)
-    e2021 = ifactor[2020] * actual[2020]
-    assert np.allclose([actual[2021]], [e2021], atol=0.01, rtol=0.0)
-    e2022 = ifactor[2021] * actual[2021]
-    assert np.allclose([actual[2022]], [e2022], atol=0.01, rtol=0.0)
+    e2020 = ifactor[2019] * e2019
+    assert np.allclose([actual[2020]], [round_down_50(e2020)], atol=0.01, rtol=0.0)
+    e2021 = ifactor[2020] * e2020
+    assert np.allclose([actual[2021]], [round_down_50(e2021)], atol=0.01, rtol=0.0)
+    e2022 = ifactor[2021] * e2021
+    assert np.allclose([actual[2022]], [round_down_50(e2022)], atol=0.01, rtol=0.0)
 
 
 def check_ss_earnings_c(ppo, reform, wfactor):
@@ -480,8 +497,9 @@ def test_reform_with_default_indexed():
     reform = {'II_em': {2015: 4300}}
     ppo.implement_reform(reform)
     # II_em has a default indexing status of true, so
-    # in 2016 its value should be greater than 4300
-    ppo.set_year(2016)
+    # in 2017 its value should be greater than 4300
+    # (advance two years to account for rounding)
+    ppo.set_year(2017)
     assert ppo.II_em > 4300
 
 
