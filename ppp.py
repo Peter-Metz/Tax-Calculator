@@ -8,6 +8,7 @@ USAGE:  $ python ppp.py
 OUTPUT: ppp.old -- contains old parameter values in policy_current_law.json
         ppp.new -- contains new parameter values that should now be used
 """
+import math
 from taxcalc import Policy
 
 # specify year constants (only byear should vary)
@@ -63,6 +64,53 @@ for year in range(byear, fyear):
     ifactor[year] = factor
     factor *= 1 + irate[year - syear]
 
+
+def round_down(pdata, value, ifactor):
+    # round_to is an array with as many elements as their are columns (e.g. filing status) 
+    # in a parameter's value array
+    round_to = pdata[pname]['round_to']
+    if isinstance(value, list):
+        if isinstance(ifactor, dict):
+            val = value[idx] * ifactor[year]
+        else:
+            val = value[idx] * ifactor
+        # if value is a 2d array, select corresponding round_to index
+        val_round = min(math.floor(val / round_to[idx]) * round_to[idx], 9e99)
+    else:
+        if isinstance(ifactor, dict):
+            val = value * ifactor[year]
+        else:
+            val = value * ifactor
+        # if value is a 1d array, select first (only) element of round_to array
+        val_round = min(math.floor(val / round_to[0]) * round_to[0], 9e99)
+    return val_round
+
+
+def round_nearest(pdata, value, ifactor):
+    # round_to is an array with as many elements as their are columns (e.g. filing status) 
+    # in a parameter's value array
+    round_to = pdata[pname]['round_to']
+    if isinstance(value, list):
+        if isinstance(ifactor, dict):
+            val = value[idx] * ifactor[year]
+        else:
+            val = value[idx] * ifactor
+        # if value is a 2d array, select corresponding round_to index
+        val_round = math.ceil(val / round_to[idx]) * round_to[idx]
+        if (val % round_to[idx] < (round_to[idx] / 2)) and (val % round_to[idx] > 0):
+            val_round -= round_to[idx]
+            val_round = min(val_round, 9e99)
+    else:
+        if isinstance(ifactor, dict):
+            val = value * ifactor[year]
+        else:
+            val = value * ifactor
+        # if value is a 1d array, select first (only) element of round_to array
+        val_round = math.ceil(val / round_to[0]) * round_to[0]
+        if (val % round_to[0] < (round_to[0] / 2)) and (val % round_to[0] > 0):
+            val_round -= round_to[0]
+    return min(val_round, 9e99)
+
 # write or calculate policy parameter values for pyear through fyear
 new = open('ppp.new', 'w')
 for pname in reverting_params:
@@ -80,19 +128,46 @@ for pname in reverting_params:
         if isinstance(bvalue, list):
             value = list()
             for idx in range(0, len(bvalue)):
-                val = min(9e99, round(bvalue[idx] * ifactor[year], 2))
-                value.append(val)
+                # implement rounding rules
+                if 'round_dir' in pdata[pname].keys():
+                    if pdata[pname]['round_dir'] == 'down':
+                        val_round = round_down(pdata, bvalue, ifactor)
+                    elif pdata[pname]['round_dir'] == 'nearest':
+                        val_round = round_nearest(pdata, bvalue, ifactor)
+                else:
+                    val_round = min(9e99, round(
+                        bvalue[idx] * ifactor[year], 2))
+                value.append(val_round)
         else:
-            value = min(9e99, round(bvalue * ifactor[year], 2))
+            # implement rounding rules
+            if 'round_dir' in pdata[pname].keys():
+                if pdata[pname]['round_dir'] == 'down':
+                    value = round_down(pdata, bvalue, ifactor)
+                elif pdata[pname]['round_dir'] == 'nearest':
+                    value = round_nearest(pdata, bvalue, ifactor)
+            else:
+                value = min(9e99, round(bvalue * ifactor[year], 2))
         new.write('{}: {}\n'.format(year, value))
     # compute final year parameter value
     pvalue = pdata[pname]['value'][pyear - syear]
     if isinstance(pvalue, list):
         value = list()
         for idx in range(0, len(pvalue)):
-            val = min(9e99, round(pvalue[idx] * final_ifactor, 0))
+            if 'round_dir' in pdata[pname].keys():
+                if pdata[pname]['round_dir'] == 'down':
+                    val = round_down(pdata, pvalue, final_ifactor)
+                elif pdata[pname]['round_dir'] == 'nearest':
+                    val = round_nearest(pdata, pvalue, final_ifactor)
+            else:
+                val = min(9e99, round(pvalue[idx] * final_ifactor, 0))
             value.append(val)
     else:
-        value = min(9e99, round(pvalue * final_ifactor, 0))
+        if 'round_dir' in pdata[pname].keys():
+            if pdata[pname]['round_dir'] == 'down':
+                value = round_down(pdata, pvalue, final_ifactor)
+            elif pdata[pname]['round_dir'] == 'nearest':
+                value = round_nearest(pdata, pvalue, final_ifactor)
+        else:
+            value = min(9e99, round(pvalue * final_ifactor, 0))
     new.write('{}: {}\n'.format(fyear, value))
 new.close()
