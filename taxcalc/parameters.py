@@ -11,6 +11,7 @@ import abc
 from collections import OrderedDict
 import requests
 import numpy as np
+import math
 from taxcalc.utils import read_egg_json, json_to_dict
 
 
@@ -230,6 +231,8 @@ class Parameters():
             valtype = data['value_type']
             values = data['value']
             indexed = data.get('indexed', False)
+            round_dir = data.get('round_dir', False)
+            round_to = data.get('round_to', False)
             if indexed:
                 if name in self._wage_indexed:
                     index_rates = self.wage_growth_rates()
@@ -242,7 +245,7 @@ class Parameters():
             else:
                 index_rates = None
             setattr(self, name,
-                    self._expand_array(values, valtype,
+                    self._expand_array(values, valtype, round_dir, round_to,
                                        inflate=indexed,
                                        inflation_rates=index_rates,
                                        num_years=self._num_years))
@@ -372,11 +375,16 @@ class Parameters():
                 continue  # handle elsewhere in this method
             vals_indexed = self._vals[name].get('indexed', False)
             valtype = self._vals[name].get('value_type')
+            round_dir = self._vals[name].get('round_dir', False)
+            round_to = self._vals[name].get('round_to', False)
             name_plus_indexed = name + '-indexed'
             if name_plus_indexed in year_mods[year].keys():
                 used_names.add(name_plus_indexed)
                 indexed = year_mods[year].get(name_plus_indexed)
                 self._vals[name]['indexed'] = indexed  # remember status
+                # set rounding args to False because -indexed params are boolean
+                round_dir = False
+                round_to = False
             else:
                 indexed = vals_indexed
             # set post-reform values of parameter with name
@@ -386,7 +394,7 @@ class Parameters():
             index_rates = self._indexing_rates_for_update(wage_indexed_param,
                                                           year,
                                                           num_years_to_expand)
-            nval = self._expand_array(values, valtype,
+            nval = self._expand_array(values, valtype, round_dir, round_to,
                                       inflate=indexed,
                                       inflation_rates=index_rates,
                                       num_years=num_years_to_expand)
@@ -406,7 +414,10 @@ class Parameters():
                                                           year,
                                                           num_years_to_expand)
             valtype = self._vals[pname].get('value_type')
-            nval = self._expand_array(pvalues, valtype,
+            # set rounding args to False because -indexed params are boolean
+            round_dir = False
+            round_to = False
+            nval = self._expand_array(pvalues, valtype, round_dir, round_to,
                                       inflate=pindexed,
                                       inflation_rates=index_rates,
                                       num_years=num_years_to_expand)
@@ -627,7 +638,7 @@ class Parameters():
     STRING_DTYPE = 'U16'
 
     @staticmethod
-    def _expand_array(xxx, xxx_type, inflate, inflation_rates, num_years):
+    def _expand_array(xxx, xxx_type, round_dir, round_to, inflate, inflation_rates, num_years):
         """
         Private method called only within this abstract base class.
         Dispatch to either _expand_1d or _expand_2d given dimension of xxx.
@@ -639,6 +650,12 @@ class Parameters():
               xxx must be either a list of scalar lists or a 2D numpy array
 
         xxx_type : string ('real', 'boolean', 'integer', 'string')
+
+        round_dir: string ('down', 'nearest')
+            Direction of rounding rule, if any (False if no rounding)
+
+        round_to: int
+            Magnitude of rounding rule, if any (False if no rounding) 
 
         inflate: boolean
             As we expand, inflate values if this is True, otherwise, just copy
@@ -668,13 +685,13 @@ class Parameters():
         dim = len(xxx.shape)
         assert dim in (1, 2)
         if dim == 1:
-            return Parameters._expand_1d(xxx, inflate, inflation_rates,
+            return Parameters._expand_1d(xxx, round_dir, round_to, inflate, inflation_rates,
                                          num_years)
-        return Parameters._expand_2d(xxx, inflate, inflation_rates,
+        return Parameters._expand_2d(xxx, round_dir, round_to, inflate, inflation_rates,
                                      num_years)
 
     @staticmethod
-    def _expand_1d(xxx, inflate, inflation_rates, num_years):
+    def _expand_1d(xxx, round_dir, round_to, inflate, inflation_rates, num_years):
         """
         Private method called only from _expand_array method.
         Expand the given data xxx to account for given number of budget years.
@@ -701,8 +718,19 @@ class Parameters():
                 cur = xxx[-1]
                 for i in range(0, num_years - len(xxx)):
                     cur *= (1. + inflation_rates[i + len(xxx) - 1])
-                    cur = round(cur, 2) if cur < 9e99 else 9e99
-                    extra.append(cur)
+                    # implement parameter rounding rules
+                    if isinstance(round_to, list):
+                        assert len(round_to) == 1
+                        round_to = round_to[0]
+                    if round_dir == 'down' and cur < 9e99:
+                        cur_round = min(math.floor(cur / round_to) * round_to, 9e99)
+                    elif round_dir == 'nearest' and cur <9e99:
+                        cur_round = math.ceil(cur / round_to) * round_to
+                        if (cur % round_to < round_to / 2) and (cur % round_to > 0):
+                            cur_round -= round_to if cur_round < 9e99 else 9e99
+                    else:
+                        cur_round = round(cur, 2) if cur < 9e99 else 9e99
+                    extra.append(cur_round)
             else:
                 extra = [float(xxx[-1]) for i in
                          range(1, num_years - len(xxx) + 1)]
@@ -710,7 +738,7 @@ class Parameters():
         return ans
 
     @staticmethod
-    def _expand_2d(xxx, inflate, inflation_rates, num_years):
+    def _expand_2d(xxx, round_dir, round_to, inflate, inflation_rates, num_years):
         """
         Private method called only from _expand_array method.
         Expand the given data to account for the given number of budget years.
@@ -729,8 +757,15 @@ class Parameters():
                 if inflate:
                     cur = (ans[i - 1, j] *
                            (1. + inflation_rates[i - 1]))
-                    cur = round(cur, 2) if cur < 9e99 else 9e99
-                    ans[i, j] = cur
+                    if round_dir == 'down' and cur < 9e99:
+                        cur_round = math.floor(cur / round_to[j]) * round_to[j]
+                    elif round_dir == 'nearest' and cur < 9e99:
+                        cur_round = math.ceil(cur / round_to[j]) * round_to[j]
+                        if (cur % round_to[j] < (round_to[j] / 2)) and (cur % round_to[j] > 0):
+                            cur_round -= round_to[j]
+                    else:
+                        cur_round = round(cur, 2) if cur < 9e99 else 9e99
+                    ans[i, j] = cur_round
                 else:
                     ans[i, j] = ans[i - 1, j]
         return ans
