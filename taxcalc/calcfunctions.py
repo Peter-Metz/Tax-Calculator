@@ -204,8 +204,7 @@ def Adj(e03150, e03210, c03260,
         ALD_StudentLoan_hc, ALD_SelfEmp_HealthIns_hc, ALD_KEOGH_SEP_hc,
         ALD_EarlyWithdraw_hc, ALD_AlimonyPaid_hc, ALD_AlimonyReceived_hc,
         ALD_EducatorExpenses_hc, ALD_HSADeduction_hc, ALD_IRAContributions_hc,
-        ALD_DomesticProduction_hc, ALD_Tuition_hc,
-        c02900):
+        ALD_DomesticProduction_hc, ALD_Tuition_hc, c02900):
     """
     Adj calculates Form 1040 AGI adjustments (i.e., Above-the-Line Deductions).
 
@@ -394,13 +393,22 @@ def UBI(nu18, n1820, n21, UBI_u18, UBI_1820, UBI_21, UBI_ecrt,
 @iterate_jit(nopython=True)
 def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, taxable_ubi,
         II_em, II_em_ps, II_prt, II_no_em_nu18,
-        c00100, pre_c04600, c04600):
+        c00100, pre_c04600, c04600, ALD_Covid_thd, ALD_Covid_hc, ALD_Covid_c, covid_deduction):
     """
     Computes Adjusted Gross Income (AGI), c00100, and
     compute personal exemption amount, c04600.
     """
     # calculate AGI assuming no foreign earned income exclusion
     c00100 = ymod1 + c02500 - c02900 + taxable_ubi
+
+    if c00100 <= ALD_Covid_thd:
+        covid_deduction = ((1. - ALD_Covid_hc) *
+                           ALD_Covid_c[MARS-1])
+    else:
+        covid_deduction = 0.
+
+    c00100 = c00100 - covid_deduction
+
     # calculate personal exemption amount
     if II_no_em_nu18:  # repeal of personal exemptions for deps. under 18
         pre_c04600 = max(0, XTOT - nu18) * II_em
@@ -419,7 +427,7 @@ def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, taxable_ubi,
         dispc_denom = 2500. / sep
         dispc = min(1., max(0., dispc_numer / dispc_denom))
         c04600 = pre_c04600 * (1. - dispc)
-    return (c00100, pre_c04600, c04600)
+    return (c00100, pre_c04600, c04600, covid_deduction)
 
 
 @iterate_jit(nopython=True)

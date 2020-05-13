@@ -1025,6 +1025,11 @@
       "desc": "search taxcalc/calcfunctions.py for how calculated and used",
       "form": {"2013-20??": "calculated variable"}
     },
+    "covid_deduction": {
+      "type": "float",
+      "desc": "search taxcalc/calcfunctions.py for how calculated and used",
+      "form": {"2013-20??": "calculated variable"}
+    },
     "ctc_new": {
       "type": "float",
       "desc": "search taxcalc/calcfunctions.py for how calculated and used",

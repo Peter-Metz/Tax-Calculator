@@ -1083,6 +1083,105 @@
             "cps": true
         }
     },
+    "ALD_Covid_hc": {
+        "title": "Deduction for Covid haircut",
+        "description": "This decimal fraction, if greater than zero, reduces the portion of Covid ALD can be deducted from AGI.",
+        "notes": "",
+        "section_1": "Above The Line Deductions",
+        "section_2": "",
+        "indexable": false,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 1.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 1
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "ALD_Covid_c": {
+        "title": "Ceiling for Covid deduction",
+        "description": "A taxpayer can take an above the line deduction up to this amount with the Covid deduction",
+        "notes": "",
+        "section_1": "Above The Line Deductions",
+        "section_2": "",
+        "indexable": true,
+        "indexed": true,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "MARS": "single",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mjoint",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mseparate",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "headhh",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "widow",
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "ALD_Covid_thd": {
+        "title": "Maximum level of income to qualify for the Covid deduction",
+        "description": "A taxpayer can only claim the Covid deduction if their total income is below this level.",
+        "notes": "Equal to the 2020 federal poverty level for a family of four ($26,200) * 3",
+        "section_1": "Above The Line Deductions",
+        "section_2": "",
+        "indexable": true,
+        "indexed": true,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
     "ALD_BusinessLosses_c": {
         "title": "Maximum amount of business losses deductible",
         "description": "Business losses in excess of this amount may not be deducted from AGI.",
