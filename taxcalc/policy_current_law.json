@@ -1156,7 +1156,7 @@
             "cps": true
         }
     },
-    "ALD_Covid_thd": {
+    "ALD_Covid_ps": {
         "title": "Maximum level of income to qualify for the Covid deduction",
         "description": "A taxpayer can only claim the Covid deduction if their total income is below this level.",
         "notes": "Equal to the 2020 federal poverty level for a family of four ($26,200) * 3",
@@ -1175,6 +1175,32 @@
             "range": {
                 "min": 0,
                 "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "ALD_Covid_prt": {
+        "title": "Covid deduction phaseout rate",
+        "description": "The Covid deduction amount will be reduced at this rate for each dollar of AGI exceeding the ALD_Covid_ps threshold.",
+        "notes": "",
+        "section_1": "Above the Line Deductions",
+        "section_2": "",
+        "indexable": false,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 1
             }
         },
         "compatible_data": {

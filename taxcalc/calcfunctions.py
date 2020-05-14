@@ -393,19 +393,19 @@ def UBI(nu18, n1820, n21, UBI_u18, UBI_1820, UBI_21, UBI_ecrt,
 @iterate_jit(nopython=True)
 def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, taxable_ubi,
         II_em, II_em_ps, II_prt, II_no_em_nu18,
-        c00100, pre_c04600, c04600, ALD_Covid_thd, ALD_Covid_hc, ALD_Covid_c, covid_deduction):
+        c00100, pre_c04600, c04600, ALD_Covid_ps, ALD_Covid_hc, ALD_Covid_c,
+        ALD_Covid_prt, covid_deduction):
     """
     Computes Adjusted Gross Income (AGI), c00100, and
     compute personal exemption amount, c04600.
     """
-    # calculate AGI assuming no foreign earned income exclusion
     c00100 = ymod1 + c02500 - c02900 + taxable_ubi
 
-    if c00100 <= ALD_Covid_thd:
-        covid_deduction = ((1. - ALD_Covid_hc) *
-                           ALD_Covid_c[MARS-1])
-    else:
-        covid_deduction = 0.
+    covid_deduction = ALD_Covid_c[MARS-1]
+    if ALD_Covid_prt > 0. and c00100 > ALD_Covid_ps:
+        pout = ALD_Covid_prt * (c00100 - ALD_Covid_ps)
+        fully_phasedout = covid_deduction - pout
+        covid_deduction = max(0., fully_phasedout)
 
     c00100 = c00100 - covid_deduction
 
