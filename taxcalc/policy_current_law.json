@@ -1208,6 +1208,157 @@
             "cps": true
         }
     },
+    "ALD_Covid_child_c": {
+        "title": "Ceiling for Covid deduction",
+        "description": "A taxpayer can take an above the line deduction up to this amount with the Covid deduction",
+        "notes": "",
+        "section_1": "Above The Line Deductions",
+        "section_2": "",
+        "indexable": true,
+        "indexed": true,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "MARS": "single",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mjoint",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mseparate",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "headhh",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "widow",
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "ALD_Covid_child_ps": {
+        "title": "Maximum level of income to qualify for the Covid deduction",
+        "description": "A taxpayer can only claim the Covid deduction if their total income is below this level.",
+        "notes": "Equal to the 2020 federal poverty level for a family of four ($26,200) * 3",
+        "section_1": "Above The Line Deductions",
+        "section_2": "",
+        "indexable": true,
+        "indexed": true,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "ALD_Covid_child_prt": {
+        "title": "Covid deduction phaseout rate",
+        "description": "The Covid deduction amount will be reduced at this rate for each dollar of AGI exceeding the ALD_Covid_ps threshold.",
+        "notes": "",
+        "section_1": "Above the Line Deductions",
+        "section_2": "",
+        "indexable": false,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "Covid_split": {
+        "title": "Covid deduction phaseout rate",
+        "description": "The Covid deduction amount will be reduced at this rate for each dollar of AGI exceeding the ALD_Covid_ps threshold.",
+        "notes": "",
+        "section_1": "Above the Line Deductions",
+        "section_2": "",
+        "indexable": false,
+        "indexed": false,
+        "type": "bool",
+        "value": [
+            {
+                "year": 2013,
+                "value": false
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "Covid_ratio": {
+        "title": "Covid deduction phaseout rate",
+        "description": "The Covid deduction amount will be reduced at this rate for each dollar of AGI exceeding the ALD_Covid_ps threshold.",
+        "notes": "",
+        "section_1": "Above the Line Deductions",
+        "section_2": "",
+        "indexable": false,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0.0,
+                "max": 1.0
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
     "ALD_BusinessLosses_c": {
         "title": "Maximum amount of business losses deductible",
         "description": "Business losses in excess of this amount may not be deducted from AGI.",
@@ -15354,6 +15505,105 @@
             "range": {
                 "min": false,
                 "max": true
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "CTC_covid_new_c": {
+        "title": "New refundable child tax credit maximum amount per child",
+        "description": "In addition to all credits currently available for dependents, this parameter gives each qualifying child a new refundable credit with this maximum amount.",
+        "notes": "Child age qualification for the new child tax credit is the same as under current-law Child Tax Credit.",
+        "section_1": "Refundable Credits",
+        "section_2": "New Refundable Child Tax Credit",
+        "indexable": true,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "CTC_covid_new_ps": {
+        "title": "New refundable child tax credit phaseout starting AGI",
+        "description": "The total amount of new child tax credit is reduced for taxpayers with AGI higher than this level.",
+        "notes": "",
+        "section_1": "Refundable Credits",
+        "section_2": "New Refundable Child Tax Credit",
+        "indexable": true,
+        "indexed": true,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "MARS": "single",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mjoint",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "mseparate",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "headhh",
+                "value": 0.0
+            },
+            {
+                "year": 2013,
+                "MARS": "widow",
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
+            }
+        },
+        "compatible_data": {
+            "puf": true,
+            "cps": true
+        }
+    },
+    "CTC_covid_new_prt": {
+        "title": "New refundable child tax credit amount phaseout rate",
+        "description": "The total amount of the new child tax credit is reduced at this rate per dollar exceeding the phaseout starting AGI, CTC_new_ps.",
+        "notes": "",
+        "section_1": "Refundable Credits",
+        "section_2": "New Refundable Child Tax Credit",
+        "indexable": false,
+        "indexed": false,
+        "type": "float",
+        "value": [
+            {
+                "year": 2013,
+                "value": 0.0
+            }
+        ],
+        "validators": {
+            "range": {
+                "min": 0,
+                "max": 9e+99
             }
         },
         "compatible_data": {

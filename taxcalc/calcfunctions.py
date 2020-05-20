@@ -21,6 +21,7 @@ import math
 import copy
 import numpy as np
 from taxcalc.decorators import iterate_jit, JIT
+import random
 
 
 def BenefitPrograms(calc):
@@ -391,10 +392,11 @@ def UBI(nu18, n1820, n21, UBI_u18, UBI_1820, UBI_21, UBI_ecrt,
 
 
 @iterate_jit(nopython=True)
-def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, taxable_ubi,
+def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, nu05, taxable_ubi,
         II_em, II_em_ps, II_prt, II_no_em_nu18,
         c00100, pre_c04600, c04600, ALD_Covid_ps, ALD_Covid_hc, ALD_Covid_c,
-        ALD_Covid_prt, covid_deduction):
+        ALD_Covid_prt, covid_deduction, ALD_Covid_child_c, ALD_Covid_child_prt, ALD_Covid_child_ps,
+        Covid_split, Covid_ratio):
     """
     Computes Adjusted Gross Income (AGI), c00100, and
     compute personal exemption amount, c04600.
@@ -407,7 +409,26 @@ def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, taxable_ubi,
         fully_phasedout = covid_deduction - pout
         covid_deduction = max(0., fully_phasedout)
 
-    c00100 = c00100 - covid_deduction
+    school_aged = nu18 - nu05
+        
+    if Covid_split:
+        if random.uniform(0,1) < Covid_ratio:
+            covid_child_deduction = school_aged * ALD_Covid_child_c[MARS-1] / 5
+        else:
+            covid_child_deduction = school_aged * ALD_Covid_child_c[MARS-1]
+    else:
+        covid_child_deduction = school_aged * ALD_Covid_child_c[MARS-1]
+
+
+    if ALD_Covid_child_prt > 0. and c00100 > ALD_Covid_child_ps:
+        if c00100 > 78600:
+            covid_child_deduction = 0
+        else:
+            pout = ALD_Covid_child_prt * (c00100 - ALD_Covid_child_ps)
+            fully_phasedout = covid_child_deduction - pout
+            covid_child_deduction = max(0., fully_phasedout)
+
+    c00100 = c00100 - covid_deduction - covid_child_deduction
 
     # calculate personal exemption amount
     if II_no_em_nu18:  # repeal of personal exemptions for deps. under 18
@@ -1724,15 +1745,36 @@ def CTC_new(CTC_new_c, CTC_new_rt, CTC_new_c_under5_bonus,
 
 
 @iterate_jit(nopython=True)
-def IITAX(c59660, c11070, c10960, personal_refundable_credit, ctc_new, rptc,
-          c09200, payrolltax,
-          eitc, refund, iitax, combined):
+def IITAX(c59660, c11070, c10960, personal_refundable_credit, ctc_new, ctc_covid_new, rptc,
+          c09200, payrolltax, CTC_covid_new_c, CTC_covid_new_ps, CTC_covid_new_prt,
+            nu18, nu05, c00100, MARS,
+          eitc, refund, iitax, combined, Covid_split, Covid_ratio):
     """
     Computes final taxes.
     """
+    school_aged = max(0, nu18 - nu05)
+    
+    if Covid_split:
+        if random.uniform(0,1) < Covid_ratio:
+            ctc_covid_new = CTC_covid_new_c * school_aged / 5
+        else:
+            ctc_covid_new = CTC_covid_new_c * school_aged
+    else:
+        ctc_covid_new = CTC_covid_new_c * school_aged
+
+    ymax = CTC_covid_new_ps[MARS - 1]
+    cliff = 78600
+    if c00100 > ymax:
+        if c00100 > cliff:
+            ctc_covid_new = 0
+        else:
+            ctc_covid_new_reduced = max(0.,
+                                  ctc_covid_new - CTC_covid_new_prt * (c00100 - ymax))
+            ctc_covid_new = min(ctc_covid_new, ctc_covid_new_reduced)
+
     eitc = c59660
     refund = (eitc + c11070 + c10960 +
-              personal_refundable_credit + ctc_new + rptc)
+              personal_refundable_credit + ctc_new + ctc_covid_new + rptc)
     iitax = c09200 - refund
     combined = iitax + payrolltax
     return (eitc, refund, iitax, combined)
