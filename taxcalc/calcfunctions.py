@@ -396,7 +396,7 @@ def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, nu05, taxable_
         II_em, II_em_ps, II_prt, II_no_em_nu18,
         c00100, pre_c04600, c04600, ALD_Covid_ps, ALD_Covid_hc, ALD_Covid_c,
         ALD_Covid_prt, covid_deduction, ALD_Covid_child_c, ALD_Covid_child_prt, ALD_Covid_child_ps,
-        Covid_split, Covid_ratio):
+        Covid_split, Covid_ratio, covid_child_deduction):
     """
     Computes Adjusted Gross Income (AGI), c00100, and
     compute personal exemption amount, c04600.
@@ -448,7 +448,7 @@ def AGI(ymod1, c02500, c02900, XTOT, MARS, sep, DSI, exact, nu18, nu05, taxable_
         dispc_denom = 2500. / sep
         dispc = min(1., max(0., dispc_numer / dispc_denom))
         c04600 = pre_c04600 * (1. - dispc)
-    return (c00100, pre_c04600, c04600, covid_deduction)
+    return (c00100, pre_c04600, c04600, covid_deduction, covid_child_deduction)
 
 
 @iterate_jit(nopython=True)
@@ -1777,7 +1777,7 @@ def IITAX(c59660, c11070, c10960, personal_refundable_credit, ctc_new, ctc_covid
               personal_refundable_credit + ctc_new + ctc_covid_new + rptc)
     iitax = c09200 - refund
     combined = iitax + payrolltax
-    return (eitc, refund, iitax, combined)
+    return (eitc, refund, iitax, combined, ctc_covid_new)
 
 
 @JIT(nopython=True)
